@@ -24,7 +24,7 @@ class BaseRepository {
                                 // delete meta key - no need for it
                                 delete result['meta'];
                             }
-                            await resolve(result);
+                            await resolve(result[0]);
                             conn.destroy();
                         })
                         .catch(err => reject(err))

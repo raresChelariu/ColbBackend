@@ -23,7 +23,7 @@ class ResponseEntity {
         if (!(typeof content === 'string'))
         {
             // received an object => convert it to JSON string
-            this.Content(JSON.stringify(content));
+            this.Content(JSON.stringify(content), ResponseEntity.#DefaultMediaTypes.JSON);
             return;
         }
         // received a string => if not JSON parsable, throw 501 Internal Server Error
@@ -49,7 +49,7 @@ class ResponseEntity {
         this.#InternalRes.writeHead(400).end(errorMessage == null ? '' : JSON.stringify({error: errorMessage}));
     }
 
-    Unauthorized(res, errorMessage = null) {
+    Unauthorized(errorMessage = null) {
         this.#InternalRes.writeHead(401).end(errorMessage == null ? '' : JSON.stringify({error: errorMessage}));
     }
 

@@ -24,7 +24,6 @@ class RequestEntity {
 
         this.QueryParams = urlParsed.query;
         let bodyRaw = await this.#ExtractBodyRaw();
-        console.log(`---> ${bodyRaw}`)
         this.BodyRaw = bodyRaw;
         this.Body = Utils.IsStringValidJSON(bodyRaw) ? JSON.parse(bodyRaw) : undefined;
     }
@@ -40,7 +39,9 @@ class RequestEntity {
             })
         });
     }
-
+    GetHeaders() {
+        return this.#InternalReq.headers;
+    }
 }
 
 module.exports = RequestEntity;

@@ -1,6 +1,6 @@
 const Validator = require('jsonschema').Validator;
 
-class Validation {
+class RequestParametersValidation {
     static ValidateObject(obj, schema) {
         let validator = new Validator();
         return validator.validate(obj, schema);
@@ -13,7 +13,7 @@ class Validation {
                 return false;
             }
 
-            let validation = Validation.ValidateObject(req.Body, schema);
+            let validation = RequestParametersValidation.ValidateObject(req.Body, schema);
             if (validation.valid === false) {
                 res.BadRequest(validation.toString());
                 return false;
@@ -23,4 +23,4 @@ class Validation {
     }
 }
 
-module.exports = Validation
+module.exports = RequestParametersValidation;
