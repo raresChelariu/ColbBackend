@@ -20,6 +20,15 @@ class ServerRouter {
         }
         console.log(this.#router.AllRoutesToString());
         http.createServer(async (req, res) => {
+            // browser sends an HTTP OPTIONS request, before actually sending the request
+            if (req.method === "OPTIONS") {
+                res.statusCode = 200;
+                res.setHeader('Access-Control-Allow-Origin', '*');
+                res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+                res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+                res.setHeader('Access-Control-Allow-Credentials', true);
+                return res.end();
+            }
             let reqEntity = new RequestEntity(req);
             await reqEntity.Init();
             let resEntity = new ResponseEntity(res);

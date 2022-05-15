@@ -55,6 +55,7 @@ router.Post('/register',
 );
 
 router.Post('/login', Validation.ValidateBody(Schemas.AccountLogin), (req, res) => {
+    console.log(req.Body);
     AccountRepository.Login(req.Body.Email, req.Body.Password).then((dbResult) => {
         if (!dbResult || dbResult.length === 0) {
             res.Unauthorized('Invalid credentials!');

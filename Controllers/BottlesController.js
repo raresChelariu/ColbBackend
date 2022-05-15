@@ -8,6 +8,11 @@ router.Get('/', (req, res) => {
 });
 
 router.Get('/authroute', JwtMiddleware.AuthorizedRequest, (req, res) => {
+    res.SetHeader()
     res.ContentPlain('Auth ok :)')
 });
+
+router.Get('/testing', (req, res) => {
+    res.ContentJSON({message: 'it works guys', date: new Date()});
+})
 module.exports = router;

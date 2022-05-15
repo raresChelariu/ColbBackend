@@ -9,6 +9,11 @@ class ResponseEntity {
 
     constructor(res) {
         this.#InternalRes = res;
+        // Add CORS headers
+        this.#InternalRes.setHeader('Access-Control-Allow-Origin', '*');
+        this.#InternalRes.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+        this.#InternalRes.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+        this.#InternalRes.setHeader('Access-Control-Allow-Credentials', true);
     }
 
     InternalServerError(content) {
@@ -55,6 +60,11 @@ class ResponseEntity {
 
     NotFound(res, errorMessage = null) {
         this.#InternalRes.writeHead(404).end(errorMessage == null ? '' : JSON.stringify({error: errorMessage}));
+    }
+
+    SetHeader(headerKey, headerValue)
+    {
+        this.#InternalRes.setHeader(headerKey, headerValue);
     }
 }
 
