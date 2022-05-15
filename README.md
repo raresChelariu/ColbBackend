@@ -2,7 +2,7 @@
 - install MariaDB 
 ( for user root, set password the same as DB_PASSWORD (value found in .env file)
 ( for MariaDB port, set port to 3306)
-- go to folder where you downloaded the project and run "node main" in cmd to start it
+- go to folder where you downloaded this repository and run "node main" in Command Prompt to start it
 (
 on success, a similar text should appear:
 
