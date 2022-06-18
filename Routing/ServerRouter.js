@@ -48,7 +48,7 @@ class ServerRouter {
 
                 if (this.#router.RoutingDictionary[httpMethod][finalPath]) {
                     // Route defined both in #router and otherRouter
-                    console.log(`Route will be overwritten! Route: ${httpMethod}${finalPath}`)
+                    console.log(`Route will be overwritten! Route: ${httpMethod}${finalPath}`);
                 }
                 // assign route from other to #router
                 this.#router.RoutingDictionary[httpMethod][finalPath] = otherRouter.RoutingDictionary[httpMethod][path];

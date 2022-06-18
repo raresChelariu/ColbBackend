@@ -1,8 +1,8 @@
 const Router = require('./../Routing/Router')
 const Validation = require("../Middleware/Validation");
-const AccountRepository = require("../DataAccess/AccountRepository");
+const AccountRepository = require("../DataAccess/MariaDB/AccountRepository");
 const router = new Router();
-const DatabaseErrorCodes = require('./../DataAccess/DatabaseErrorCodes');
+const DatabaseErrorCodes = require('../DataAccess/MariaDB/DatabaseErrorCodes');
 const Jwt = require("../Middleware/JwtMiddleware");
 
 const Schemas = {
@@ -33,49 +33,53 @@ router.Post('/register',
     (req, res) => {
         AccountRepository.Register(req.Body.Email, req.Body.FirstName, req.Body.LastName, req.Body.Password)
             .then(() => {
-                let payload = {
-                    Email: req.Body.Email,
-                    FirstName: req.Body.FirstName,
-                    LastName: req.Body.LastName
-                };
-                let response = {
-                    Account: payload,
-                    Token: Jwt.Sign(payload)
-                };
-                res.ContentJSON(response);
+                AccountRepository.Login(req.Body.Email, req.Body.Password)
+                    .then((dbResult) => {
+                        let payload = dbResult[0];
+                        let payloadToBeSigned = JSON.parse(JSON.stringify(payload));
+                        let response = {
+                            Account: payload,
+                            Token: Jwt.Sign(payloadToBeSigned)
+                        };
+                        res.ContentJSON(response);
+                    })
+                    .catch((err) => {
+                        res.InternalServerError(err);
+                    });
             })
             .catch((error) => {
                 if (error.code === DatabaseErrorCodes.DUPLICATE_ENTRY.DatabaseName) {
                     res.BadRequest(DatabaseErrorCodes.DUPLICATE_ENTRY.ClientName);
                     return;
                 }
-                res.InternalServerError({error: error.toString()})
+                res.InternalServerError({error: error.toString()});
             });
     }
 );
 
-router.Post('/login', Validation.ValidateBody(Schemas.AccountLogin), (req, res) => {
-    console.log(req.Body);
-    AccountRepository.Login(req.Body.Email, req.Body.Password).then((dbResult) => {
-        if (!dbResult || dbResult.length === 0) {
-            res.Unauthorized('Invalid credentials!');
-            return;
-        }
-        let payload = dbResult[0];
-        let response = {
-            Account: payload,
-            Token: Jwt.Sign(payload)
-        };
+router.Post('/login',
+    Validation.ValidateBody(Schemas.AccountLogin), (req, res) => {
+        console.log(req.Body);
+        AccountRepository.Login(req.Body.Email, req.Body.Password).then((dbResult) => {
+            if (!dbResult || dbResult.length === 0) {
+                res.Unauthorized('Invalid credentials!');
+                return;
+            }
+            let payload = dbResult[0];
+            let response = {
+                Account: payload,
+                Token: Jwt.Sign(payload)
+            };
 
-        res.ContentJSON(response);
-    }).catch((error) => {
-        if (error.code === DatabaseErrorCodes.DUPLICATE_ENTRY.DatabaseName) {
-            res.BadRequest(DatabaseErrorCodes.DUPLICATE_ENTRY.ClientName);
-            return;
-        }
-        res.InternalServerError({error: error.toString()})
+            res.ContentJSON(response);
+        }).catch((error) => {
+            if (error.code === DatabaseErrorCodes.DUPLICATE_ENTRY.DatabaseName) {
+                res.BadRequest(DatabaseErrorCodes.DUPLICATE_ENTRY.ClientName);
+                return;
+            }
+            res.InternalServerError({error: error.toString()})
+        });
     });
-})
 
 
 module.exports = router;

@@ -4,7 +4,9 @@ const timeExpiresIn = process.env.JWT_TOKEN_EXPIRATION_IN_SECONDS
 
 class JwtMiddleware {
     static Sign(payload, expiresIn = timeExpiresIn) {
-        return jwtMiddleware.sign(payload, secret, {expiresIn: expiresIn})
+        // expiresIn - number of seconds after which it will expire
+        payload['exp'] = parseInt(Math.floor(Date.now() / 1000) + expiresIn);
+        return jwtMiddleware.sign(payload, secret);
     }
 
     static Verify(token) {
