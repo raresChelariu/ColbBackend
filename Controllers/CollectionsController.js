@@ -4,6 +4,8 @@ const CollectionRepository = require("../DataAccess/MariaDB/CollectionRepository
 const router = new Router();
 const JwtMiddleware = require("../Middleware/JwtMiddleware");
 const Utils = require("../DataAccess/MariaDB/Utils");
+const DatabaseErrorCodes = require("../DataAccess/MariaDB/DatabaseErrorCodes");
+const FilterHelper = require("./FilterHelper");
 
 const Schemas = {
     CollectionAdd: {
@@ -24,6 +26,35 @@ const Schemas = {
             'inputDateTimeStart': {'type': 'date'},
             'inputDateTimeEnd': {'type': 'date'}
         }
+    },
+    CollectionAddBottleToCollection: {
+        'id': '/AddBottleToCollection',
+        'type': 'object',
+        'properties': {
+            'CollectionID': {'type': 'number'},
+            'BottleID': {'type': 'number'}
+        },
+        'required': ['CollectionID', 'BottleID']
+    },
+    CollectionBottlesGetByFilters: {
+        'id': '/BottlesGetByFiltersForCollectionID',
+        'type': 'object',
+        'properties': {
+            'collectionID': {'type': 'string', 'pattern': /[1-9]+\d*/},
+            'name': {'type': 'string'},
+            'priceMin': {'type': 'string', 'pattern': /^\d+(\.\d*)?$/},
+            'priceMax': {'type': 'string', 'pattern': /^\d+(\.\d*)?$/},
+            'country': {'type': 'string'},
+            'label': {'type': 'string'},
+            'createdDateTimeStart': {'type': 'date'},
+            'createdDateTimeEnd': {'type': 'date'},
+            'orderColumn': {'type': 'string'},
+            'orderDirection': {'type': 'string'},
+            'indexStart': {'type': 'string', 'pattern': /[1-9]+\d*/},
+            'indexEnd': {'type': 'string', 'pattern': /[1-9]+\d*/},
+            'exportType': {'type': 'string'}
+        },
+        required: ['collectionID']
     }
 }
 
@@ -38,7 +69,7 @@ router.Post('/',
         }
         CollectionRepository.Add(req.Body.Name, req.Body.Description, req.Account.ID).then((result) => {
             console.log(result);
-            res.CreatedJSON({'Name': req.Body.Name, 'Description': req.Body.Description, 'ID': req.Account.ID});
+            res.CreatedJSON(result);
         }).catch(err => {
             res.InternalServerError(err);
         });
@@ -60,7 +91,7 @@ router.Get('/byfilters',
             Description: Utils.DefaultForStringField(req.QueryParams.description),
             InputDateTimeStart: Utils.DefaultForDateTimeField(req.QueryParams.inputDateTimeStart, DATETIME_MIN),
             InputDateTimeEnd: Utils.DefaultForDateTimeField(req.QueryParams.inputDateTimeEnd, DATETIME_MAX),
-            AccountID: req.Account.ID
+            AccountID: Number(req.Account.ID)
         };
         CollectionRepository.GetByFiltersForAccountID(filter.AccountID, filter.Name, filter.Description, filter.InputDateTimeStart, filter.InputDateTimeEnd)
             .then(result => {
@@ -73,61 +104,46 @@ router.Get('/byfilters',
 
     }
 );
-
-router.Get('/getcsvtest',
+router.Post('/bottles',
+    JwtMiddleware.AuthorizedRequest,
+    Validation.ValidateBody(Schemas.CollectionAddBottleToCollection),
     (req, res) => {
-        const myCars = [
-            {
-                "car": "Audi",
-                "price": 40000,
-                "color": "blue"
-            }, {
-                "car": "BMW",
-                "price": 35000,
-                "color": "black"
-            }, {
-                "car": "Porsche",
-                "price": 60000,
-                "color": "green"
-            }
-        ];
-        const mappingForCSVExport = {
-            'car': 'CarName',
-            'price': 'CarPrice',
-            'color': 'ColorOfCar'
-        };
-        const fileName = 'test.csv';
-        res.SendListOfObjectsAsCSV(myCars, mappingForCSVExport, fileName);
+        CollectionRepository.AddBottleToCollection(req.Account.ID, req.Body.CollectionID, req.Body.BottleID)
+            .then((result) => {
+                res.CreatedJSON(result);
+            })
+            .catch(error => {
+                if (error.code === DatabaseErrorCodes.DUPLICATE_ENTRY.DatabaseName) {
+                    res.BadRequest(DatabaseErrorCodes.DUPLICATE_ENTRY.ClientName);
+                    return;
+                }
+                if (error.code === DatabaseErrorCodes.BUSINESS_ERROR.DatabaseName) {
+                    res.BadRequest(error.text);
+                    return;
+                }
+                res.InternalServerError(error);
+            });
     }
 );
 
-router.Get('/getpdftest',
+router.Get('/bottles/filter', JwtMiddleware.AuthorizedRequest,
+    Validation.ValidateQueryString(Schemas.CollectionBottlesGetByFilters),
     (req, res) => {
-        const myCars = [
-            {
-                "car": "Audi",
-                "price": 40000,
-                "color": "blue"
-            }, {
-                "car": "BMW",
-                "price": 35000,
-                "color": "black"
-            }, {
-                "car": "Porsche",
-                "price": 60000,
-                "color": "green"
-            }
-        ];
-        const mappingForCSVExport = {
-            'car': 'CarName',
-            'price': 'CarPrice',
-            'color': 'ColorOfCar'
-        };
-        const pdfTitle = 'Here is the PDF TITLE';
-        const pdfFilename = 'hello.pdf';
-        res.SendListOfObjectsAsPdf(myCars, mappingForCSVExport, pdfFilename, pdfTitle);
+
+        const filter = FilterHelper.GetFilterForBottles(req);
+        CollectionRepository.CollectionBottlesGetByFilters(req.Account.ID, req.QueryParams.collectionID, filter.Name, filter.PriceMin, filter.PriceMax,
+            filter.Country, filter.Label, filter.CreatedDateTimeStart, filter.CreatedDateTimeEnd)
+            .then((result) => {
+                FilterHelper.FilterHelperForBottles(req, res, result, filter);
+            })
+            .catch((error) => {
+                if (error.code === DatabaseErrorCodes.BUSINESS_ERROR.DatabaseName) {
+                    res.BadRequest(error.text);
+                    return;
+                }
+                res.InternalServerError(error);
+            });
     }
 );
-
 
 module.exports = router;

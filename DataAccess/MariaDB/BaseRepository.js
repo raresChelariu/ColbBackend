@@ -24,7 +24,28 @@ class BaseRepository {
                                 // delete meta key - no need for it
                                 delete result['meta'];
                             }
-                            await resolve(result[0]);
+                            if (result[0] === undefined) {
+                                await resolve({});
+                                conn.destroy();
+                                return;
+                            }
+                            let queryResult = result[0];
+                            if (queryResult.length === undefined || queryResult.length === null || queryResult.length === 0) {
+                                await resolve(queryResult);
+                                conn.destroy();
+                                return;
+                            }
+                            // cannot stringify object with properties of type bigint
+                            // so we convert bigint properties to int
+                            for (let i = 0; i < queryResult.length; i++) {
+                                let keys = Object.keys(queryResult[i]);
+                                for (let j = 0; j < keys.length; j++) {
+                                    if (typeof queryResult[i][keys[j]] === 'bigint') {
+                                        queryResult[i][keys[j]] = parseInt(queryResult[i][keys[j]]);
+                                    }
+                                }
+                            }
+                            await resolve(queryResult);
                             conn.destroy();
                         })
                         .catch(err => reject(err))

@@ -55,6 +55,8 @@ class Utils {
     }
 
     static DefaultForNumericField(field, defaultValue) {
+        if (typeof field === 'string')
+            field = parseInt(field);
         if (field === null || field === undefined) {
             return defaultValue;
         }

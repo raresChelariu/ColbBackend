@@ -13,6 +13,12 @@ class BottleRepository {
             values: [Name, PriceMin, PriceMax, Country, Label, CreatedDateTimeStart, CreatedDateTimeEnd]
         });
     }
+    static GetLastAdded(bottleNumber) {
+        return BaseRepository.Query({
+            sql: 'call BottleGetLastAdded(?)',
+            values: [bottleNumber]
+        });
+    }
 }
 
 module.exports = BottleRepository;

@@ -6,7 +6,8 @@ class ResponseEntity {
     static #DefaultMediaTypes = {
         'PLAIN': 'text/plain',
         'JSON': 'application/json',
-        'FILE': 'application/octet-stream'
+        'FILE': 'application/octet-stream',
+        XML: 'application/xml'
     };
     #InternalRes;
 
@@ -20,6 +21,7 @@ class ResponseEntity {
     }
 
     InternalServerError(content) {
+        this.SetHeader(HEADER_KEY_CONTENT_TYPE, ResponseEntity.#DefaultMediaTypes.JSON);
         this.#InternalRes.writeHead(500).end(JSON.stringify(content));
     }
 
@@ -28,22 +30,29 @@ class ResponseEntity {
     }
 
     ContentJSON(content) {
-        if (!(typeof content === 'string'))
-        {
-            // received an object => convert it to JSON string
-            this.Content(JSON.stringify(content), ResponseEntity.#DefaultMediaTypes.JSON);
-            return;
+        try {
+            if (!(typeof content === 'string'))
+            {
+                // received an object => convert it to JSON string
+                this.Content(JSON.stringify(content), ResponseEntity.#DefaultMediaTypes.JSON);
+                return;
+            }
+            // received a string => if not JSON parsable, throw 501 Internal Server Error
+            if (!Utils.IsStringValidJSON(content))
+            {
+                console.log(`Invalid JSON. Given JSON for Response : ${content}`)
+                this.InternalServerError();
+                return;
+            }
+            this.Content(content, ResponseEntity.#DefaultMediaTypes.JSON);
         }
-        // received a string => if not JSON parsable, throw 501 Internal Server Error
-        if (!Utils.IsStringValidJSON(content))
-        {
-            console.log(`Invalid JSON. Given JSON for Response : ${content}`)
-            this.InternalServerError();
-            return;
+        catch(exception) {
+            this.InternalServerError({error: exception.toString()})
         }
-        this.Content(content, ResponseEntity.#DefaultMediaTypes.JSON);
     }
-
+    ContentXML(content) {
+        this.Content(content, ResponseEntity.#DefaultMediaTypes.XML);
+    }
     Content(content, mediaType) {
         this.SetHeader(HEADER_KEY_CONTENT_TYPE, mediaType);
         this.#InternalRes.writeHead(200, { HEADER_KEY_CONTENT_TYPE : mediaType}).end(content);
@@ -93,7 +102,7 @@ class ResponseEntity {
         this.SetHeader(HEADER_KEY_CONTENT_DISPOSITION, `attachment; filename=${fileName}`);
         this.#InternalRes.end(contentOfCsv);
     }
-    SendListOfObjectsAsPdf(objectList, mapperPropertyToCSVFieldName, fileName, titleOfPDF) {
+    SendListOfObjectsAsPDF(objectList, mapperPropertyToCSVFieldName, fileName, titleOfPDF) {
         if (titleOfPDF === null || titleOfPDF === undefined || // no object
             titleOfPDF === '' || !titleOfPDF.trim() // empty or whitespace string
         ) {
