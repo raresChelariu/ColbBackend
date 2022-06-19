@@ -50,22 +50,18 @@ create or replace table account2collections
 
 create or replace table collection2bottles
 (
-    ID           int null,
+    ID           int auto_increment,
     CollectionID int not null,
     BottleID     int not null,
     primary key (CollectionID, BottleID),
+    constraint collection2bottles_ID_uindex
+        unique (ID),
     constraint Collection2Bottles_FK_BottleID
         foreign key (BottleID) references bottles (ID)
             on update cascade on delete cascade,
     constraint Collection2Bottles_FK_CollectionID
         foreign key (CollectionID) references collections (ID)
             on update cascade on delete cascade
-);
-
-create or replace table logs
-(
-    message       varchar(5000)                        null,
-    inputdatetime datetime default current_timestamp() null
 );
 
 create or replace
@@ -92,9 +88,12 @@ begin
 end;
 
 create or replace
-    definer = root@localhost procedure BottleTest(OUT out_row_count int)
+    definer = root@localhost procedure BottleGetLastAdded(IN in_bottle_number int)
 begin
-    select count(*) into out_row_count from bottles where 1 = 1;
+    select *
+    from bottles
+    order by InputDateTime desc
+    limit in_bottle_number;
 end;
 
 create or replace
@@ -118,26 +117,81 @@ create or replace
     definer = root@localhost procedure CollectionAdd(IN in_name varchar(256), IN in_description varchar(1024),
                                                      IN in_account_id int)
 begin
-    insert into collections (name, description) VALUE (in_name, in_description);
     if not exists(select 1 from accounts where ID = in_account_id)
     then
-        delete from collections where ID = last_insert_id();
+        signal sqlstate '45000' set message_text = 'Account ID does not exist';
     end if;
-    insert into account2collections (CollectionID, AccountID) VALUE (last_insert_id(), in_account_id);
+    insert into collections (name, description) VALUE (in_name, in_description);
+    set @collectionID = last_insert_id();
+    insert into account2collections (CollectionID, AccountID) VALUE (@collectionID, in_account_id);
+    select * from collections where ID = @collectionID;
 end;
 
 create or replace
-    definer = root@localhost procedure CollectionsGetByFilters(IN in_account_id int, IN in_name decimal,
-                                                               IN in_description_pattern decimal,
+    definer = root@localhost procedure CollectionBottlesGetByFilters(IN in_account_ID int, IN in_collection_ID int,
+                                                                     IN in_name varchar(256), IN in_price_min decimal,
+                                                                     IN in_price_max decimal, IN in_country char(2),
+                                                                     IN in_label varchar(512),
+                                                                     IN in_created_date_time_start datetime,
+                                                                     IN in_created_date_time_end datetime)
+begin
+    if not exists(select 1 from accounts where ID = in_account_id) then
+        signal sqlstate '45000' set message_text = 'Account ID does not exist';
+    end if;
+    if not exists(select 1 from collections where ID = in_collection_id) then
+        signal sqlstate '45000' set message_text = 'Collection ID does not exist';
+    end if;
+    if not exists(select 1
+                  from account2collections
+                  where AccountID = in_account_id
+                    and CollectionID = in_collection_id) then
+        signal sqlstate '45000' set message_text = 'Collection does not belong to account';
+    end if;
+    select B.*
+    from bottles B
+             join collection2bottles C2B on B.ID = C2B.BottleID
+    where c2b.CollectionID = in_collection_ID
+      and lower(B.Name) like concat('%', lower(in_name), '%')
+      and B.Price between in_price_min and in_price_max
+      and lower(B.Country) like concat('%', lower(in_country), '%')
+      and lower(B.Label) like concat('%', lower(in_label), '%')
+      and B.CreatedDateTime between in_created_date_time_start and in_created_date_time_end;
+
+end;
+
+create or replace
+    definer = root@localhost procedure CollectionsAddBottle(IN in_account_id int, IN in_collection_id int, IN in_bottle_id int)
+begin
+    if not exists(select 1 from accounts where ID = in_account_id) then
+        signal sqlstate '45000' set message_text = 'Account ID does not exist';
+    end if;
+    if not exists(select 1 from collections where ID = in_collection_id) then
+        signal sqlstate '45000' set message_text = 'Collection ID does not exist';
+    end if;
+    if not exists(select 1 from bottles where ID = in_bottle_id) then
+        signal sqlstate '45000' set message_text = 'Bottle ID does not exist';
+    end if;
+    if not exists(select 1
+                  from account2collections
+                  where AccountID = in_account_id and CollectionID = in_collection_id) then
+        signal sqlstate '45000' set message_text = 'Collection does not belong to account';
+    end if;
+    insert into collection2bottles (CollectionID, BottleID) value (in_collection_id, in_bottle_id);
+end;
+
+create or replace
+    definer = root@localhost procedure CollectionsGetByFilters(IN in_account_id int, IN in_name varchar(256),
+                                                               IN in_description_pattern varchar(1024),
                                                                IN in_input_date_time_start datetime,
                                                                IN in_input_date_time_end datetime)
 begin
-    select C.*, count(*) as bottleNo
+    select C.*, ifnull(count(*), 0) as bottleNo
     from collections C
              join collection2bottles C2B on C.ID = C2B.CollectionID
-    where C.ID = in_account_id
-      and C.Name like concat('%', in_name, '%')
-      and C.Description like concat('%', in_description_pattern, '%')
+             join account2collections A2C on C.ID = A2C.CollectionID
+    where A2C.AccountID = in_account_id
+      and lower(C.Name) like concat('%', lower(in_name), '%')
+      and lower(C.Description) like concat('%', lower(in_description_pattern), '%')
       and C.InputDateTime between in_input_date_time_start and in_input_date_time_end
     group by C.ID;
 
