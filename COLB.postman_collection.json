@@ -1,0 +1,1063 @@
+{
+	"info": {
+		"_postman_id": "6a2d8bb7-113c-4d61-a213-ddbef3884463",
+		"name": "COLB",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "6888837"
+	},
+	"item": [
+		{
+			"name": "Accounts",
+			"item": [
+				{
+					"name": "Register",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let token = JSON.parse(responseBody)\r",
+									"if (token)\r",
+									"    pm.environment.set(\"JWT_TOKEN\", token);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"Email\": \"andrei@gmail.com\",\r\n    \"FirstName\": \"Andrei\",\r\n    \"LastName\": \"Xyz\",\r\n    \"Password\": \"andrei123\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{ROOT}}/accounts/register",
+							"host": [
+								"{{ROOT}}"
+							],
+							"path": [
+								"accounts",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let token = JSON.parse(responseBody)['Token'];\r",
+									"if (token)\r",
+									"    pm.collectionVariables.set(\"JWT_TOKEN\", token);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"Email\":  \"andrei@gmail.com\",\r\n    \"Password\": \"andrei123\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{ROOT}}/accounts/login",
+							"host": [
+								"{{ROOT}}"
+							],
+							"path": [
+								"accounts",
+								"login"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Login",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"Email\":  \"alex@gmail.com\",\r\n    \"Password\": \"Alex123@\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{ROOT}}/accounts/login",
+									"host": [
+										"{{ROOT}}"
+									],
+									"path": [
+										"accounts",
+										"login"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Allow-Methods",
+									"value": "GET, POST, PUT, DELETE, OPTIONS"
+								},
+								{
+									"key": "Access-Control-Allow-Headers",
+									"value": "Content-Type"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "HEADER_KEY_CONTENT_TYPE",
+									"value": "application/json"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 13 Jun 2022 11:37:10 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"Account\": {\n        \"ID\": 3,\n        \"Email\": \"alex@gmail.com\",\n        \"FirstName\": \"Alex\",\n        \"LastName\": \"Pop\"\n    },\n    \"Token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJJRCI6MywiRW1haWwiOiJhbGV4QGdtYWlsLmNvbSIsIkZpcnN0TmFtZSI6IkFsZXgiLCJMYXN0TmFtZSI6IlBvcCIsImlhdCI6MTY1NTEyMDIzMCwiZXhwIjoxNjU1MTIwMjM3fQ.Z9NqtQv4r4F02gwdbmMLGMHj2zkXs3cfWVHWYSSPHtI\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Bottles",
+			"item": [
+				{
+					"name": "Bottles Filter",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{JWT_TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{ROOT}}/bottles/filter?country=ES&priceMin=7000&priceMax=10000&orderDirection=desc&orderColumn=id&indexStart=1&indexEnd=2&label=al",
+							"host": [
+								"{{ROOT}}"
+							],
+							"path": [
+								"bottles",
+								"filter"
+							],
+							"query": [
+								{
+									"key": "country",
+									"value": "ES"
+								},
+								{
+									"key": "priceMin",
+									"value": "7000"
+								},
+								{
+									"key": "priceMax",
+									"value": "10000"
+								},
+								{
+									"key": "orderDirection",
+									"value": "desc"
+								},
+								{
+									"key": "exportType",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "orderColumn",
+									"value": "id"
+								},
+								{
+									"key": "indexStart",
+									"value": "1"
+								},
+								{
+									"key": "indexEnd",
+									"value": "2"
+								},
+								{
+									"key": "label",
+									"value": "al"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Bottles Filter",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{ROOT}}/bottles/filter?country=ES&priceMin=7000&priceMax=10000&orderDirection=desc&orderColumn=id&indexStart=1&indexEnd=2&label=al",
+									"host": [
+										"{{ROOT}}"
+									],
+									"path": [
+										"bottles",
+										"filter"
+									],
+									"query": [
+										{
+											"key": "country",
+											"value": "ES"
+										},
+										{
+											"key": "priceMin",
+											"value": "7000"
+										},
+										{
+											"key": "priceMax",
+											"value": "10000"
+										},
+										{
+											"key": "orderDirection",
+											"value": "desc"
+										},
+										{
+											"key": "exportType",
+											"value": "",
+											"disabled": true
+										},
+										{
+											"key": "orderColumn",
+											"value": "id"
+										},
+										{
+											"key": "indexStart",
+											"value": "1"
+										},
+										{
+											"key": "indexEnd",
+											"value": "2"
+										},
+										{
+											"key": "label",
+											"value": "al"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Allow-Methods",
+									"value": "GET, POST, PUT, DELETE, OPTIONS"
+								},
+								{
+									"key": "Access-Control-Allow-Headers",
+									"value": "Content-Type"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "HEADER_KEY_CONTENT_TYPE",
+									"value": "application/json"
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 19 Jun 2022 14:25:15 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								}
+							],
+							"cookie": [],
+							"body": "[\n    {\n        \"ID\": 114,\n        \"Name\": \"German Hound\",\n        \"Price\": \"7571\",\n        \"Country\": \"ES\",\n        \"Label\": \"Schoen, Hessel and Walter\",\n        \"ImageUrl\": \"http://unsteady-albatross.biz\",\n        \"InputDateTime\": \"2022-06-05T09:24:16.000Z\",\n        \"CreatedDateTime\": \"2021-10-14T03:48:39.000Z\"\n    },\n    {\n        \"ID\": 14,\n        \"Name\": \"Lakeland Terrier\",\n        \"Price\": \"7581\",\n        \"Country\": \"ES\",\n        \"Label\": \"Walter and Sons\",\n        \"ImageUrl\": \"https://qualified-sunset.com\",\n        \"InputDateTime\": \"2022-06-04T18:57:33.000Z\",\n        \"CreatedDateTime\": \"2021-09-08T15:15:13.000Z\"\n    }\n]"
+						}
+					]
+				},
+				{
+					"name": "Bottles Create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"Name\": \"Old CocaCola Bottle for collecting\",\r\n    \"Price\": \"2500.99\",\r\n    \"Country\": \"US\",\r\n    \"CreatedDateTime\": \"1980-03-19\",\r\n    \"ImageUrl\": \"https://www.seekpng.com/png/detail/950-9505213_free-png-download-coca-cola-bottle-clipart-png.png\",\r\n    \"Label\": \"CocaCola\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{ROOT}}/bottles",
+							"host": [
+								"{{ROOT}}"
+							],
+							"path": [
+								"bottles"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Bottles Last5",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{ROOT}}/bottles/last5",
+							"host": [
+								"{{ROOT}}"
+							],
+							"path": [
+								"bottles",
+								"last5"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Bottles Last5",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{ROOT}}/bottles/last5",
+									"host": [
+										"{{ROOT}}"
+									],
+									"path": [
+										"bottles",
+										"last5"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "xml",
+							"header": [
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Allow-Methods",
+									"value": "GET, POST, PUT, DELETE, OPTIONS"
+								},
+								{
+									"key": "Access-Control-Allow-Headers",
+									"value": "Content-Type"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/xml"
+								},
+								{
+									"key": "HEADER_KEY_CONTENT_TYPE",
+									"value": "application/xml"
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 19 Jun 2022 14:20:30 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								}
+							],
+							"cookie": [],
+							"body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<rss version=\"2.0\" xmlns:atom=\"http://www.w3.org/2005/Atom\">\n    <channel>\n        <atom:link href=\"http://localhost:3000/bottles/last5/\" rel=\"self\" type=\"application/rss+xml\"/>\n        <title>CLOB - Last 5 bottles added</title>\n        <link>http://localhost:3000/bottles/last5/</link>\n        <description>Collecting bottles on the web</description>\n        <language>en-US</language>\n        <item>\n            <title>Yakutian Laika</title>\n            <pubDate>Sun, 05 Jun 2022 09:24:16 GMT</pubDate>\n            <guid isPermaLink=\"true\">http://localhost:3000/bottles/last5/</guid>\n            <description>\n                <![CDATA[Bottle Name: Yakutian Laika; Bottle label: Doyle LLC; Bottle CreationDate: Wed Nov 10 2021 02:13:13 GMT+0200 (Eastern European Standard Time)]]>\n            </description>\n        </item>\n        <item>\n            <title>Rat Terrier</title>\n            <pubDate>Sun, 05 Jun 2022 09:24:16 GMT</pubDate>\n            <guid isPermaLink=\"true\">http://localhost:3000/bottles/last5/</guid>\n            <description>\n                <![CDATA[Bottle Name: Rat Terrier; Bottle label: Orn - Dibbert; Bottle CreationDate: Sat Nov 06 2021 15:46:42 GMT+0200 (Eastern European Standard Time)]]>\n            </description>\n        </item>\n        <item>\n            <title>Grand Griffon Vendéen</title>\n            <pubDate>Sun, 05 Jun 2022 09:24:16 GMT</pubDate>\n            <guid isPermaLink=\"true\">http://localhost:3000/bottles/last5/</guid>\n            <description>\n                <![CDATA[Bottle Name: Grand Griffon Vendéen; Bottle label: Corwin - Sporer; Bottle CreationDate: Tue Jul 06 2021 15:09:40 GMT+0300 (Eastern European Summer Time)]]>\n            </description>\n        </item>\n        <item>\n            <title>Lagotto Romagnolo</title>\n            <pubDate>Sun, 05 Jun 2022 09:24:16 GMT</pubDate>\n            <guid isPermaLink=\"true\">http://localhost:3000/bottles/last5/</guid>\n            <description>\n                <![CDATA[Bottle Name: Lagotto Romagnolo; Bottle label: Boyle LLC; Bottle CreationDate: Mon Dec 27 2021 18:27:50 GMT+0200 (Eastern European Standard Time)]]>\n            </description>\n        </item>\n        <item>\n            <title>German Hound</title>\n            <pubDate>Sun, 05 Jun 2022 09:24:16 GMT</pubDate>\n            <guid isPermaLink=\"true\">http://localhost:3000/bottles/last5/</guid>\n            <description>\n                <![CDATA[Bottle Name: German Hound; Bottle label: Schoen, Hessel and Walter; Bottle CreationDate: Thu Oct 14 2021 06:48:39 GMT+0300 (Eastern European Summer Time)]]>\n            </description>\n        </item>\n    </channel>\n</rss>"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Bottle collections",
+			"item": [
+				{
+					"name": "Collection Create",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{JWT_TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "",
+								"value": "",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"Name\": \"Collection Pepsi\",\r\n    \"Description\": \"Bottles used for storing a lot of Pepsi\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{ROOT}}/collections",
+							"host": [
+								"{{ROOT}}"
+							],
+							"path": [
+								"collections"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Collection Create",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "",
+										"value": "",
+										"type": "text",
+										"disabled": true
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"Name\": \"Collection Pepsi\",\r\n    \"Description\": \"Bottles used for storing a lot of Pepsi\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{ROOT}}/collections",
+									"host": [
+										"{{ROOT}}"
+									],
+									"path": [
+										"collections"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Allow-Methods",
+									"value": "GET, POST, PUT, DELETE, OPTIONS"
+								},
+								{
+									"key": "Access-Control-Allow-Headers",
+									"value": "Content-Type"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 19 Jun 2022 14:32:17 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								}
+							],
+							"cookie": [],
+							"body": "[\n    {\n        \"ID\": 8,\n        \"Name\": \"Collection Pepsi\",\n        \"InputDateTime\": \"2022-06-19T14:32:17.000Z\",\n        \"Description\": \"Bottles used for storing a lot of Pepsi\"\n    }\n]"
+						}
+					]
+				},
+				{
+					"name": "Collection GetByFilters",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{JWT_TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{ROOT}}/collections/byfilters",
+							"host": [
+								"{{ROOT}}"
+							],
+							"path": [
+								"collections",
+								"byfilters"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Collection GetByFilters",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{ROOT}}/collections/byfilters",
+									"host": [
+										"{{ROOT}}"
+									],
+									"path": [
+										"collections",
+										"byfilters"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Allow-Methods",
+									"value": "GET, POST, PUT, DELETE, OPTIONS"
+								},
+								{
+									"key": "Access-Control-Allow-Headers",
+									"value": "Content-Type"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "HEADER_KEY_CONTENT_TYPE",
+									"value": "application/json"
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 19 Jun 2022 14:44:08 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								}
+							],
+							"cookie": [],
+							"body": "[\n    {\n        \"ID\": 3,\n        \"Name\": \"Collection Fanta\",\n        \"InputDateTime\": \"2022-06-19T06:46:52.000Z\",\n        \"Description\": \"Bottles used for storing Fanta\",\n        \"bottleNo\": 6\n    },\n    {\n        \"ID\": 7,\n        \"Name\": \"Collection Pepsi\",\n        \"InputDateTime\": \"2022-06-19T14:29:54.000Z\",\n        \"Description\": \"Bottles used for storing a lot of Pepsi\",\n        \"bottleNo\": 1\n    }\n]"
+						}
+					]
+				},
+				{
+					"name": "Collection AddBottle",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{JWT_TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"CollectionID\": 7,\r\n    \"BottleID\": 60\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{ROOT}}/collections/bottles",
+							"host": [
+								"{{ROOT}}"
+							],
+							"path": [
+								"collections",
+								"bottles"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Collection AddBottle",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"CollectionID\": 2,\r\n    \"BottleID\": 49\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{ROOT}}/collections/bottles",
+									"host": [
+										"{{ROOT}}"
+									],
+									"path": [
+										"collections",
+										"bottles"
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Allow-Methods",
+									"value": "GET, POST, PUT, DELETE, OPTIONS"
+								},
+								{
+									"key": "Access-Control-Allow-Headers",
+									"value": "Content-Type"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 19 Jun 2022 14:46:30 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"error\": \"Collection does not belong to account\"\n}"
+						},
+						{
+							"name": "Collection AddBottle",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"CollectionID\": 7,\r\n    \"BottleID\": 60\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{ROOT}}/collections/bottles",
+									"host": [
+										"{{ROOT}}"
+									],
+									"path": [
+										"collections",
+										"bottles"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Allow-Methods",
+									"value": "GET, POST, PUT, DELETE, OPTIONS"
+								},
+								{
+									"key": "Access-Control-Allow-Headers",
+									"value": "Content-Type"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 19 Jun 2022 14:54:41 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								}
+							],
+							"cookie": [],
+							"body": "{}"
+						}
+					]
+				},
+				{
+					"name": "Collection Bottles GetByFilters",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"console.log(`No of elements: ${pm.response.json().length}`)\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{JWT_TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{ROOT}}/collections/bottles/filter?collectionID=3&indexStart=4&indexEnd=6",
+							"host": [
+								"{{ROOT}}"
+							],
+							"path": [
+								"collections",
+								"bottles",
+								"filter"
+							],
+							"query": [
+								{
+									"key": "collectionID",
+									"value": "3"
+								},
+								{
+									"key": "country",
+									"value": "ES",
+									"disabled": true
+								},
+								{
+									"key": "priceMin",
+									"value": "7000",
+									"disabled": true
+								},
+								{
+									"key": "priceMax",
+									"value": "10000",
+									"disabled": true
+								},
+								{
+									"key": "orderColumn",
+									"value": "id",
+									"disabled": true
+								},
+								{
+									"key": "country",
+									"value": "BR",
+									"disabled": true
+								},
+								{
+									"key": "indexStart",
+									"value": "4"
+								},
+								{
+									"key": "indexEnd",
+									"value": "6"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Collection Bottles GetByFilters",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{ROOT}}/collections/bottles/filter?collectionID=3&indexStart=4&indexEnd=6",
+									"host": [
+										"{{ROOT}}"
+									],
+									"path": [
+										"collections",
+										"bottles",
+										"filter"
+									],
+									"query": [
+										{
+											"key": "collectionID",
+											"value": "3"
+										},
+										{
+											"key": "country",
+											"value": "ES",
+											"disabled": true
+										},
+										{
+											"key": "priceMin",
+											"value": "7000",
+											"disabled": true
+										},
+										{
+											"key": "priceMax",
+											"value": "10000",
+											"disabled": true
+										},
+										{
+											"key": "orderColumn",
+											"value": "id",
+											"disabled": true
+										},
+										{
+											"key": "country",
+											"value": "BR",
+											"disabled": true
+										},
+										{
+											"key": "indexStart",
+											"value": "4"
+										},
+										{
+											"key": "indexEnd",
+											"value": "6"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Allow-Methods",
+									"value": "GET, POST, PUT, DELETE, OPTIONS"
+								},
+								{
+									"key": "Access-Control-Allow-Headers",
+									"value": "Content-Type"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "HEADER_KEY_CONTENT_TYPE",
+									"value": "application/json"
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 19 Jun 2022 14:55:53 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								}
+							],
+							"cookie": [],
+							"body": "[\n    {\n        \"ID\": 20,\n        \"Name\": \"Mucuchies\",\n        \"Price\": \"5142\",\n        \"Country\": \"FR\",\n        \"Label\": \"Keebler - Gerhold\",\n        \"ImageUrl\": \"https://pungent-pigpen.name\",\n        \"InputDateTime\": \"2022-06-04T18:57:33.000Z\",\n        \"CreatedDateTime\": \"2022-02-11T17:36:29.000Z\"\n    },\n    {\n        \"ID\": 21,\n        \"Name\": \"German Pinscher\",\n        \"Price\": \"3006\",\n        \"Country\": \"RU\",\n        \"Label\": \"Satterfield, Bartoletti and Weber\",\n        \"ImageUrl\": \"https://heavenly-dredger.com\",\n        \"InputDateTime\": \"2022-06-04T18:57:33.000Z\",\n        \"CreatedDateTime\": \"2022-02-08T07:26:32.000Z\"\n    },\n    {\n        \"ID\": 25,\n        \"Name\": \"Dingo\",\n        \"Price\": \"1571\",\n        \"Country\": \"BR\",\n        \"Label\": \"Schmitt, Corwin and Wyman\",\n        \"ImageUrl\": \"http://querulous-deviation.info\",\n        \"InputDateTime\": \"2022-06-04T18:57:33.000Z\",\n        \"CreatedDateTime\": \"2021-07-30T12:59:42.000Z\"\n    }\n]"
+						}
+					]
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "ROOT",
+			"value": "http://127.0.0.1:3000"
+		},
+		{
+			"key": "JWT_TOKEN",
+			"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJFbWFpbCI6InJhZHVAZ21haWwuY29tIiwiRmlyc3ROYW1lIjoiUmFkdSIsIkxhc3ROYW1lIjoiUG9wIiwiaWF0IjoxNjUxMDQ0OTUwLCJleHAiOjE2NTEwNDQ5NTd9.BBkv2f1gzJXTkWjxl_5GYaV8YCBzgWG0k2_v1i_-43E",
+			"type": "string"
+		}
+	]
+}
